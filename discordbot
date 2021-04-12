@@ -1,0 +1,61 @@
+import bs4
+import discord
+import requests
+from bs4 import BeautifulSoup
+
+
+client = discord.Client()
+
+
+@client.event
+async def on_ready():
+    print('We have logged in as {0.user}'.format(client))
+
+
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+# list of commands that users can use
+    commands_list = ['!help', '!commands','$command', '$hello', '$bye', '$rolld6', '$inspire']
+    if message.content.startswith('!price'):
+
+        headers = {'User-Agent': ##insert User agent from your browser'}
+        # Splitting the input from !price to read input text from user.
+        stock = message.content.split(' ')[1]
+        url = f'https://finance.yahoo.com/quote/{stock}'
+
+        #full_url = url + stock
+
+        r = requests.get(url, headers = headers )
+
+        soup = BeautifulSoup(r.text, "html.parser")
+
+        stock_price = {
+            'company': soup.find('div', {'class': 'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}).find_all('div')[0].text,
+            'symbol': stock,
+            'price': soup.find('div', {'class': 'D(ib) Mend(20px)'}).find_all('span')[0].text,
+            'change': soup.find('div', {'class': 'D(ib) Mend(20px)'}).find_all('span')[1].text,
+         }
+
+
+        await message.channel.send(f"The stock price for {stock.upper()} is {stock_price} .")
+
+# the following if statements are the commands that users use the bot response the reply using the await
+# command giving the user a response
+
+    if message.content.startswith('$command'):
+        await message.channel.send('The Following commands are: '+ commandlist)
+
+    if message.content.startswith('$hello'):
+        await message.channel.send('Hello!')
+
+    if message.content.startswith('$bye'):
+        await message.channel.send('Goodbye')
+
+    
+
+# the client/bot signature token is used here to activate the bot calling the discord server
+
+client.run('insert token here')
